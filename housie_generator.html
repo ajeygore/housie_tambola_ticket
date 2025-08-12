@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambola Ticket Generator</title>
+    <style>
+        /* Screen styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .input-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-section h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+
+        .tickets-container {
+            margin-top: 30px;
+        }
+
+        .ticket {
+            border: 2px solid #000;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            page-break-inside: avoid;
+        }
+
+        .ticket-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+        }
+
+        .ticket-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .ticket-table td {
+            border: 1px solid #000;
+            width: 11.11%;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 14px;
+            font-weight: bold;
+            aspect-ratio: 1;
+            box-sizing: border-box;
+        }
+
+        .ticket-table .empty {
+            background-color: #f0f0f0;
+        }
+
+        .ticket-number {
+            text-align: right;
+            font-size: 12px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                margin: 0;
+                background: white;
+            }
+
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                background: white;
+            }
+
+            .input-section {
+                display: none;
+            }
+
+            .tickets-container {
+                display: none;
+            }
+
+            .print-page {
+                width: 210mm;
+                height: 297mm;
+                page-break-after: always;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: center;
+                margin: 0;
+                padding: 15mm 20mm;
+                box-sizing: border-box;
+            }
+
+            .print-page:last-child {
+                page-break-after: auto;
+            }
+
+            .ticket {
+                width: 160mm;
+                height: 60mm;
+                margin: 0;
+                padding: 6mm;
+                border: 2px solid #000;
+                box-sizing: border-box;
+                page-break-inside: avoid;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .ticket-header {
+                font-size: 16px;
+                margin-bottom: 4mm;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .ticket-table {
+                width: 100%;
+                flex-grow: 1;
+                border-collapse: collapse;
+            }
+
+            .ticket-table td {
+                font-size: 14px;
+                height: 12mm;
+                width: 11.11%;
+                aspect-ratio: 1;
+                border: 1px solid #000;
+                text-align: center;
+                vertical-align: middle;
+                box-sizing: border-box;
+            }
+
+            .ticket-table .empty {
+                background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .ticket-number {
+                font-size: 11px;
+                margin-top: 2mm;
+                text-align: right;
+                flex-shrink: 0;
+            }
+        }
+
+        @media screen {
+            .print-page {
+                display: none;
+            }
+        }
+
+        .no-print {
+            display: block;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-section no-print">
+            <h1>Tambola Ticket Generator</h1>
+            <div class="input-group">
+                <label for="ticketCount">Number of Tickets:</label>
+                <input type="number" id="ticketCount" min="1" max="100" value="8" placeholder="Enter number of tickets">
+            </div>
+            <button class="btn" onclick="generateTickets()">Generate Tickets</button>
+            <button class="btn btn-success" onclick="printTickets()" id="printBtn" style="display: none;">Print Tickets</button>
+        </div>
+
+        <div class="tickets-container no-print" id="ticketsContainer">
+            <!-- Generated tickets will appear here -->
+        </div>
+
+        <!-- Print layout will be generated here -->
+        <div id="printLayout"></div>
+    </div>
+
+    <script>
+        let generatedTickets = [];
+
+        function generateTambolaTicket(ticketNumber) {
+            // Create a 3x9 grid for tambola ticket
+            const ticket = Array(3).fill().map(() => Array(9).fill(0));
+            
+            // Define number ranges for each column
+            const ranges = [
+                [1, 9],   // Column 0: 1-9
+                [10, 19], // Column 1: 10-19
+                [20, 29], // Column 2: 20-29
+                [30, 39], // Column 3: 30-39
+                [40, 49], // Column 4: 40-49
+                [50, 59], // Column 5: 50-59
+                [60, 69], // Column 6: 60-69
+                [70, 79], // Column 7: 70-79
+                [80, 90]  // Column 8: 80-90
+            ];
+
+            // Step 1: Decide how many numbers each column will have (0, 1, or 2)
+            const columnCounts = [];
+            let totalNumbers = 0;
+            
+            // We need exactly 15 numbers total (5 per row * 3 rows)
+            // Each column can have 0, 1, or 2 numbers
+            for (let col = 0; col < 9; col++) {
+                if (totalNumbers >= 15) {
+                    columnCounts[col] = 0;
+                } else if (totalNumbers >= 13) {
+                    columnCounts[col] = Math.min(2, 15 - totalNumbers);
+                } else {
+                    const remaining = 15 - totalNumbers;
+                    const remainingCols = 9 - col;
+                    const minNeeded = Math.max(0, remaining - (remainingCols - 1) * 2);
+                    const maxPossible = Math.min(2, remaining);
+                    
+                    if (minNeeded >= 2) {
+                        columnCounts[col] = 2;
+                    } else if (minNeeded >= 1) {
+                        columnCounts[col] = Math.random() < 0.7 ? 2 : 1;
+                    } else {
+                        columnCounts[col] = Math.random() < 0.6 ? 2 : (Math.random() < 0.8 ? 1 : 0);
+                    }
+                    
+                    columnCounts[col] = Math.min(columnCounts[col], maxPossible);
+                }
+                totalNumbers += columnCounts[col];
+            }
+            
+            // Adjust if we don't have exactly 15 numbers
+            while (totalNumbers < 15) {
+                const col = Math.floor(Math.random() * 9);
+                if (columnCounts[col] < 2) {
+                    columnCounts[col]++;
+                    totalNumbers++;
+                }
+            }
+            
+            while (totalNumbers > 15) {
+                const col = Math.floor(Math.random() * 9);
+                if (columnCounts[col] > 0) {
+                    columnCounts[col]--;
+                    totalNumbers--;
+                }
+            }
+
+            // Step 2: Fill each column with the determined number of numbers
+            for (let col = 0; col < 9; col++) {
+                if (columnCounts[col] === 0) continue;
+                
+                const [min, max] = ranges[col];
+                const availableNumbers = [];
+                
+                for (let i = min; i <= max; i++) {
+                    availableNumbers.push(i);
+                }
+                
+                shuffle(availableNumbers);
+                
+                // Place the numbers in random rows for this column
+                const usedRows = [];
+                for (let i = 0; i < columnCounts[col]; i++) {
+                    let row;
+                    do {
+                        row = Math.floor(Math.random() * 3);
+                    } while (usedRows.includes(row));
+                    
+                    usedRows.push(row);
+                    ticket[row][col] = availableNumbers[i];
+                }
+            }
+
+            // Step 3: Ensure each row has exactly 5 numbers
+            for (let row = 0; row < 3; row++) {
+                const currentCount = ticket[row].filter(cell => cell !== 0).length;
+                
+                if (currentCount < 5) {
+                    // Need to add numbers
+                    const needed = 5 - currentCount;
+                    const availableCols = [];
+                    
+                    for (let col = 0; col < 9; col++) {
+                        if (ticket[row][col] === 0 && columnCounts[col] < 2) {
+                            availableCols.push(col);
+                        }
+                    }
+                    
+                    shuffle(availableCols);
+                    
+                    for (let i = 0; i < needed && i < availableCols.length; i++) {
+                        const col = availableCols[i];
+                        const [min, max] = ranges[col];
+                        
+                        let num;
+                        let attempts = 0;
+                        do {
+                            num = Math.floor(Math.random() * (max - min + 1)) + min;
+                            attempts++;
+                        } while (ticket.flat().includes(num) && attempts < 20);
+                        
+                        if (attempts < 20) {
+                            ticket[row][col] = num;
+                            columnCounts[col]++;
+                        }
+                    }
+                } else if (currentCount > 5) {
+                    // Need to remove numbers
+                    const excess = currentCount - 5;
+                    const filledCols = [];
+                    
+                    for (let col = 0; col < 9; col++) {
+                        if (ticket[row][col] !== 0) {
+                            filledCols.push(col);
+                        }
+                    }
+                    
+                    shuffle(filledCols);
+                    
+                    for (let i = 0; i < excess; i++) {
+                        const col = filledCols[i];
+                        ticket[row][col] = 0;
+                        columnCounts[col]--;
+                    }
+                }
+            }
+
+            return {
+                number: ticketNumber,
+                grid: ticket
+            };
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function renderTicket(ticket, isForPrint = false) {
+            return `
+                <div class="ticket">
+                    <div class="ticket-header">Costa Rhu Housie - Ticket #${ticket.number}</div>
+                    <table class="ticket-table">
+                        ${ticket.grid.map(row => `
+                            <tr>
+                                ${row.map(cell => `
+                                    <td class="${cell === 0 ? 'empty' : ''}">${cell === 0 ? '' : cell}</td>
+                                `).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                    <div class="ticket-number">Ticket #${ticket.number}</div>
+                </div>
+            `;
+        }
+
+        function generateTickets() {
+            const count = parseInt(document.getElementById('ticketCount').value);
+            
+            if (!count || count < 1 || count > 100) {
+                alert('Please enter a valid number of tickets (1-100)');
+                return;
+            }
+
+            generatedTickets = [];
+            
+            for (let i = 1; i <= count; i++) {
+                generatedTickets.push(generateTambolaTicket(i));
+            }
+
+            // Display tickets on screen
+            const container = document.getElementById('ticketsContainer');
+            container.innerHTML = generatedTickets.map(ticket => renderTicket(ticket)).join('');
+
+            // Show print button
+            document.getElementById('printBtn').style.display = 'inline-block';
+
+            // Generate print layout
+            generatePrintLayout();
+        }
+
+        function generatePrintLayout() {
+            const printLayout = document.getElementById('printLayout');
+            printLayout.innerHTML = '';
+
+            const ticketsPerPage = 4;
+            const totalPages = Math.ceil(generatedTickets.length / ticketsPerPage);
+
+            for (let page = 0; page < totalPages; page++) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'print-page';
+
+                const startIndex = page * ticketsPerPage;
+                const endIndex = Math.min(startIndex + ticketsPerPage, generatedTickets.length);
+
+                for (let i = startIndex; i < endIndex; i++) {
+                    pageDiv.innerHTML += renderTicket(generatedTickets[i], true);
+                }
+
+                printLayout.appendChild(pageDiv);
+            }
+        }
+
+        function printTickets() {
+            window.print();
+        }
+
+        // Generate default tickets on page load
+        window.onload = function() {
+            generateTickets();
+        };
+    </script>
+</body>
+</html>
